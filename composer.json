@@ -17,7 +17,7 @@
     "nette/caching": "^2.5",
     "blitzik/router": "dev-master",
     "kdyby/doctrine": "dev-master",
-    "kdyby/monolog": "dev-master"
+    "kdyby/monolog": "^1.2.1"
   },
 
   "autoload": {
