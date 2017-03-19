@@ -5,6 +5,7 @@ namespace blitzik\Routing\Services;
 use blitzik\Routing\Exceptions\UrlNotPersistedException;
 use Kdyby\Doctrine\EntityManager;
 use Nette\Caching\IStorage;
+use blitzik\Router\Router;
 use Nette\Caching\Cache;
 use blitzik\Routing\Url;
 use Nette\SmartObject;
@@ -26,7 +27,7 @@ class UrlLinker
         IStorage $storage
     ) {
         $this->em = $entityManager;
-        $this->cache = new Cache($storage, Router::ROUTE_NAMESPACE);
+        $this->cache = new Cache($storage, Router::ROUTING_NAMESPACE);
     }
 
 

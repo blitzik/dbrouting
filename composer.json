@@ -14,11 +14,10 @@
     "php": ">=7.0",
     "nette/application": "^2.4",
     "nette/di": "^2.4",
-    "nette/tracy": "^2.4",
     "nette/caching": "^2.5",
-    "nette/robot-loader": "^2.4",
     "blitzik/router": "dev-master",
-    "kdyby/doctrine": "dev-master"
+    "kdyby/doctrine": "dev-master",
+    "kdyby/monolog": "dev-master"
   },
 
   "autoload": {
