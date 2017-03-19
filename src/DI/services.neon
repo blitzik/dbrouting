@@ -1,0 +1,13 @@
+# commands
+newUrlCommand:
+	class: blitzik\Routing\Commands\NewUrlCommand
+	tags: [kdyby.console.command]
+
+urlPersister: blitzik\Routing\Services\UrlPersister
+
+databaseRoutersLoader: blitzik\Routing\RoutesLoader\DatabaseRoutesLoader
+localesRouter: blitzik\Routing\LocalesLoader\LocalesLoader
+
+urlLinker: blitzik\Routing\Services\UrlLinker
+
+urlFacade: blitzik\Routing\Facades\UrlFacade
