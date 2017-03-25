@@ -73,10 +73,10 @@ class Url
      */
 
 
-    public function setUrlPath(string $path)
+    public function setUrlPath(string $path, bool $lower = true)
     {
         Validators::assert($path, 'null|unicode:0..' . self::URL_PATH_LENGTH);
-        $this->urlPath = $path === null ? null : Strings::webalize($path, '/.');
+        $this->urlPath = $path === null ? null : Strings::webalize($path, '/.', $lower);
     }
 
 
