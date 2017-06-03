@@ -37,7 +37,7 @@ class UrlLinker
      * @return void
      * @throws \Exception
      */
-    public function linkUrls(Url $oldUrl, Url $newUrl)
+    public function linkUrls(Url $oldUrl, Url $newUrl): void
     {
         if ($oldUrl->getId() === null or $newUrl->getId() === null) {
             throw new UrlNotPersistedException;

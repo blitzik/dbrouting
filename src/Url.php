@@ -73,21 +73,21 @@ class Url
      */
 
 
-    public function setUrlPath(string $path, bool $lower = false)
+    public function setUrlPath(string $path, bool $lower = false): void
     {
         Validators::assert($path, 'null|unicode:0..' . self::URL_PATH_LENGTH);
         $this->urlPath = $path === null ? null : Strings::webalize($path, '/.', $lower);
     }
 
 
-    public function setInternalId(string $internalId = null)
+    public function setInternalId(?string $internalId): void
     {
         Validators::assert($internalId, 'unicode|null');
         $this->internalId = $internalId;
     }
 
 
-    public function setDestination(string $presenter, string $action = null)
+    public function setDestination(string $presenter, string $action = null): void
     {
         if ($action === null) {
             $destination = $presenter;
@@ -102,9 +102,6 @@ class Url
     }
 
 
-    /**
-     * @return mixed
-     */
     private function resolveDestination(string $destination): array
     {
         // ((Module:)*(Presenter)):(action)
@@ -118,7 +115,7 @@ class Url
     }
 
 
-    public function setRedirectTo(Url $actualUrlToRedirect)
+    public function setRedirectTo(Url $actualUrlToRedirect): void
     {
         $this->urlToRedirect = $actualUrlToRedirect;
     }
@@ -137,28 +134,19 @@ class Url
     }
 
 
-    /**
-     * @return int|null
-     */
-    public function getInternalId()
+    public function getInternalId(): ?string
     {
         return $this->internalId;
     }
 
 
-    /**
-     * @return Url|null
-     */
-    public function getUrlToRedirect()
+    public function getUrlToRedirect(): ?Url
     {
         return $this->urlToRedirect;
     }
 
 
-    /**
-     * @return int|null
-     */
-    public function getCurrentUrlId()
+    public function getCurrentUrlId(): ?int
     {
         if (!isset($this->actualUrlToRedirect)) {
             return $this->getId();
@@ -196,10 +184,7 @@ class Url
     }
 
 
-    /**
-     * @return string|null
-     */
-    public function getAbsoluteDestination()
+    public function getAbsoluteDestination(): ?string
     {
         if (!isset($this->presenter, $this->action)) {
             return null;
@@ -212,6 +197,26 @@ class Url
     public function getCacheKey(): string
     {
         return self::class . '/' . $this->getId();
+    }
+
+
+    public function convertToRouterUrl(): \blitzik\Router\Url
+    {
+        $url = new \blitzik\Router\Url();
+
+        $url->setUrlPath($this->urlPath);
+        $url->setDestination($this->presenter, $this->action);
+        $url->setInternalId($this->internalId);
+
+        if ($this->urlToRedirect !== null) {
+            $url->setRedirectTo($this->urlToRedirect->convertToRouterUrl());
+        }
+
+        foreach ($this->getParameters() as $name => $value) {
+            $url->addParameter($name, $value);
+        }
+
+        return $url;
     }
 
 }

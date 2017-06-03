@@ -15,7 +15,7 @@ class DatabaseRoutingExtension extends CompilerExtension implements IEntityProvi
      * Processes configuration data. Intended to be overridden by descendant.
      * @return void
      */
-    public function loadConfiguration()
+    public function loadConfiguration(): void
     {
         $cb = $this->getContainerBuilder();
 
@@ -27,7 +27,7 @@ class DatabaseRoutingExtension extends CompilerExtension implements IEntityProvi
      * Adjusts DI container before is compiled to PHP class. Intended to be overridden by descendant.
      * @return void
      */
-    public function beforeCompile()
+    public function beforeCompile(): void
     {
         $cb = $this->getContainerBuilder();
 
@@ -53,7 +53,7 @@ class DatabaseRoutingExtension extends CompilerExtension implements IEntityProvi
      *
      * @return array
      */
-    public function getEntityMappings()
+    public function getEntityMappings(): array
     {
         return ['blitzik\Routing' => __DIR__ . '/..'];
     }

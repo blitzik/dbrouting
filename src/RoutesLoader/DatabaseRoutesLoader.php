@@ -39,10 +39,7 @@ final class DatabaseRoutesLoader implements IRoutesLoader
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function loadUrlByPath(string $urlPath)
+    public function loadUrlByPath(string $urlPath): ?\blitzik\Router\Url
     {
         /** @var Url $urlEntity */
         $urlEntity = $this->cache->load($urlPath, function (& $dependencies) use ($urlPath) {
@@ -63,14 +60,11 @@ final class DatabaseRoutesLoader implements IRoutesLoader
             return $urlEntity;
         });
 
-        return $urlEntity;
+        return $urlEntity->convertToRouterUrl();
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function loadUrlByDestination(string $presenter, string $action, string $internalId = null)
+    public function loadUrlByDestination(string $presenter, string $action, string $internalId = null): ?\blitzik\Router\Url
     {
         $urlPathCacheKey = sprintf('%s:%s:%s', $presenter, $action, $internalId);
 
@@ -94,7 +88,7 @@ final class DatabaseRoutesLoader implements IRoutesLoader
             return $urlEntity;
         });
 
-        return $urlEntity;
+        return $urlEntity->convertToRouterUrl();
     }
 
 
@@ -104,7 +98,7 @@ final class DatabaseRoutesLoader implements IRoutesLoader
      * @param string|null $internalId
      * @return Url|null
      */
-    private function getUrlEntity(string $presenter, string $action, string $internalId = null)
+    private function getUrlEntity(string $presenter, string $action, string $internalId = null): ?Url
     {
         $qb = $this->em->createQueryBuilder();
         $qb->select('u, rt')
@@ -127,4 +121,5 @@ final class DatabaseRoutesLoader implements IRoutesLoader
 
         return $urls[0];
     }
+
 }

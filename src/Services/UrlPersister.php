@@ -93,7 +93,7 @@ class UrlPersister
     }
 
 
-    private function closeEntityManager()
+    private function closeEntityManager(): void
     {
         $this->em->rollback();
         $this->em->close();

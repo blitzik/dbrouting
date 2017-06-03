@@ -58,17 +58,13 @@ class UrlFacade
      * @param Url $new
      * @return void
      */
-    public function linkUrls(Url $old, Url $new)
+    public function linkUrls(Url $old, Url $new): void
     {
         $this->urlLinker->linkUrls($old, $new);
     }
 
 
-    /**
-     * @param string $urlPath
-     * @return Url|null
-     */
-    public function getByPath($urlPath)
+    public function getByPath(string $urlPath): ?Url
     {
         $qb = $this->em->createQueryBuilder();
         $qb->select('u')
@@ -80,11 +76,7 @@ class UrlFacade
     }
 
 
-    /**
-     * @param int $urlId
-     * @return Url|null
-     */
-    public function getById(int $urlId)
+    public function getById(int $urlId): ?Url
     {
         return $this->urlRepository->find($urlId);
     }
@@ -94,10 +86,10 @@ class UrlFacade
      * @param string $presenter
      * @param string $action
      * @param int $internal_id
-     * @return mixed
+     * @return Url|null
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getUrl(string $presenter, string $action, int $internal_id)
+    public function getUrl(string $presenter, string $action, int $internal_id): ?Url
     {
         return $this->em->createQuery(
             'SELECT u FROM ' . Url::class . ' u
@@ -110,7 +102,7 @@ class UrlFacade
     }
 
 
-    public function removeUrlById(int $id)
+    public function removeUrlById(int $id): void
     {
         $this->em->createQuery(
             'DELETE FROM ' . Url::class . ' u
