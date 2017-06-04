@@ -60,6 +60,10 @@ final class DatabaseRoutesLoader implements IRoutesLoader
             return $urlEntity;
         });
 
+        if ($urlEntity === null) {
+            return null;
+        }
+
         return $urlEntity->convertToRouterUrl();
     }
 
@@ -87,6 +91,10 @@ final class DatabaseRoutesLoader implements IRoutesLoader
             $dependencies = [Cache::TAGS => $urlEntity->getCacheKey()];
             return $urlEntity;
         });
+
+        if ($urlEntity === null) {
+            return null;
+        }
 
         return $urlEntity->convertToRouterUrl();
     }
