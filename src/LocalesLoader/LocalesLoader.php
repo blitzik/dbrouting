@@ -2,8 +2,9 @@
 
 namespace blitzik\Routing\LocalesLoader;
 
-use blitzik\Router\LocalesRouter\ILocalesLoader;
+use blitzik\Router\LocalesLoader\ILocalesLoader;
 
+// todo
 class LocalesLoader implements ILocalesLoader
 {
     public function loadLocales(): array

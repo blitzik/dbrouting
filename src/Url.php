@@ -4,11 +4,15 @@ namespace blitzik\Routing;
 
 use blitzik\Routing\Exceptions\InvalidArgumentException;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
+use blitzik\Routing\Utils\ParametersCollector;
+use blitzik\Routing\Utils\FilterCollector;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 use Nette\Utils\Validators;
 use Nette\Utils\Strings;
+use Nette\Utils\Json;
 
 /**
  * @ORM\Entity
@@ -25,11 +29,11 @@ class Url
 
     const CACHE_NAMESPACE = 'route/';
 
-    const URL_PATH_LENGTH = 255;
+    const URL_PATH_LENGTH = 1000;
 
 
     /**
-     * @ORM\Column(name="url_path", type="string", length=255, nullable=true, unique=true)
+     * @ORM\Column(name="url_path", type="string", length=1000, nullable=false, unique=true)
      * @var string
      */
     private $urlPath;
@@ -59,11 +63,27 @@ class Url
      */
     private $urlToRedirect;
 
+    /**
+     * @ORM\Column(name="filters", type="text", length= 65535, nullable=true, unique=false)
+     * @var string
+     */
+    private $filters;
 
-    public function getParameters(): array
-    {
-        return [];
-    }
+    /**
+     * @ORM\Column(name="internal_parameters", type="text", length= 65535, nullable=true, unique=false)
+     * @var string
+     */
+    private $internalParameters;
+
+
+    // -----
+
+
+    /** @var array filters */
+    private $f;
+
+    /** @var array internal parameters */
+    private $p;
 
     
     /*
@@ -119,7 +139,21 @@ class Url
     {
         $this->urlToRedirect = $actualUrlToRedirect;
     }
-    
+
+
+    public function setFilters(FilterCollector $collector): void
+    {
+        $this->filters = Json::encode($collector->getFilters());
+        $this->f = $collector->getFilters();
+    }
+
+
+    public function setInternalParameters(ParametersCollector $collector): void
+    {
+        $this->internalParameters = Json::encode($collector->getParameters());
+        $this->p = $collector->getParameters();
+    }
+
 
     /*
      * --------------------
@@ -200,20 +234,54 @@ class Url
     }
 
 
+    public function getInternalParameters(): array
+    {
+        if ($this->p === null) {
+            if ($this->internalParameters === null) {
+                $this->p = [];
+            } else {
+                $this->p = Json::decode($this->internalParameters, Json::FORCE_ARRAY);
+            }
+        }
+
+        return $this->p;
+    }
+
+
+    public function getFilters(): array
+    {
+        if ($this->f === null) {
+            if ($this->filters === null) {
+                $this->f = [];
+            } else {
+                $this->f = Json::decode($this->filters, Json::FORCE_ARRAY);
+            }
+        }
+
+        return $this->f;
+    }
+
+
     public function convertToRouterUrl(): \blitzik\Router\Url
     {
         $url = new \blitzik\Router\Url();
 
         $url->setUrlPath($this->urlPath);
-        $url->setDestination($this->presenter, $this->action);
+        if ($this->presenter !== null) {
+            $url->setDestination($this->presenter, $this->action);
+        }
         $url->setInternalId($this->internalId);
 
         if ($this->urlToRedirect !== null) {
             $url->setRedirectTo($this->urlToRedirect->convertToRouterUrl());
         }
 
-        foreach ($this->getParameters() as $name => $value) {
-            $url->addParameter($name, $value);
+        foreach ($this->getInternalParameters() as $name => $value) {
+            $url->addInternalParameter($name, $value);
+        }
+
+        foreach ($this->getFilters() as $parameterName => $filterName) {
+            $url->addFilter($filterName, [$parameterName]);
         }
 
         return $url;

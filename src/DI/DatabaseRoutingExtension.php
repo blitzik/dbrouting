@@ -2,11 +2,10 @@
 
 namespace blitzik\Routing\DI;
 
-use blitzik\Router\LocalesRouter\NeonLocalesLoader;
+use blitzik\Router\LocalesLoader\NeonLocalesLoader;
 use blitzik\Router\RoutesLoader\NeonRoutesLoader;
 use Kdyby\Doctrine\DI\IEntityProvider;
 use Nette\DI\CompilerExtension;
-use blitzik\Router\Router;
 use Nette\DI\Compiler;
 
 class DatabaseRoutingExtension extends CompilerExtension implements IEntityProvider
@@ -32,9 +31,6 @@ class DatabaseRoutingExtension extends CompilerExtension implements IEntityProvi
         $cb = $this->getContainerBuilder();
 
         $cb->removeDefinition('routing.router');
-
-        $router = $cb->addDefinition($this->prefix('router'));
-        $router->setClass(Router::class);
 
         $neonRoutesLoader = $cb->getByType(NeonRoutesLoader::class);
         if ($neonRoutesLoader !== null) {

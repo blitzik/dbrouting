@@ -39,13 +39,13 @@ class UrlGenerator
 
     /**
      * @param string $url
-     * @param string|null $presenterAction
+     * @param string|null $action
      * @param string|null $internal_id
      * @return UrlGenerator
      */
-    public function addUrl(string $url, string $presenterAction, string $internal_id = null): UrlGenerator
+    public function addUrl(string $url, string $action, string $internal_id = null): UrlGenerator
     {
-        $url = self::create($url, $this->presenter, $presenterAction, $internal_id);
+        $url = self::create($url, $this->presenter, $action, $internal_id);
         $this->em->persist($url);
 
         return $this;

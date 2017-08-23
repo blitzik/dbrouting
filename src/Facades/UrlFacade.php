@@ -3,10 +3,12 @@
 namespace blitzik\Routing\Facades;
 
 use blitzik\Routing\Exceptions\UrlAlreadyExistsException;
+use blitzik\Routing\Queries\UrlQuery;
 use blitzik\Routing\Services\UrlPersister;
 use blitzik\Routing\Services\UrlLinker;
 use Kdyby\Doctrine\EntityRepository;
 use Kdyby\Doctrine\EntityManager;
+use Kdyby\Doctrine\ResultSet;
 use blitzik\Routing\Url;
 use Nette\SmartObject;
 
@@ -53,11 +55,18 @@ class UrlFacade
     }
 
 
-    /**
-     * @param Url $old
-     * @param Url $new
-     * @return void
-     */
+    public function getUrl(UrlQuery $query): ?Url
+    {
+        return $this->urlRepository->fetchOne($query);
+    }
+
+
+    public function findUrls(UrlQuery $query): ResultSet
+    {
+        return $this->urlRepository->fetch($query);
+    }
+
+
     public function linkUrls(Url $old, Url $new): void
     {
         $this->urlLinker->linkUrls($old, $new);
@@ -66,13 +75,7 @@ class UrlFacade
 
     public function getByPath(string $urlPath): ?Url
     {
-        $qb = $this->em->createQueryBuilder();
-        $qb->select('u')
-           ->from(Url::class, 'u')
-           ->where('u.urlPath = :urlPath')
-           ->setParameter('urlPath', $urlPath);
-
-        return $qb->getQuery()->getOneOrNullResult();
+        return $this->getUrl((new UrlQuery())->byPath($urlPath));
     }
 
 
@@ -82,23 +85,17 @@ class UrlFacade
     }
 
 
-    /**
-     * @param string $presenter
-     * @param string $action
-     * @param int $internal_id
-     * @return Url|null
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     */
-    public function getUrl(string $presenter, string $action, int $internal_id): ?Url
+    public function getByDestination(string $presenter, string $action, string $internalId = null): ResultSet
     {
-        return $this->em->createQuery(
-            'SELECT u FROM ' . Url::class . ' u
-             WHERE u.presenter = :presenter AND u.action = :action AND u.internalId = :internalID'
-        )->setParameters([
-            'presenter' => $presenter,
-            'action' => $action,
-            'internalID' => $internal_id
-        ])->getOneOrNullResult();
+        $q = (new UrlQuery())
+            ->byPresenter($presenter)
+            ->byAction($action);
+
+        if ($internalId !== null) {
+            $q->byInternalId($internalId);
+        }
+
+        return $this->findUrls($q);
     }
 
 

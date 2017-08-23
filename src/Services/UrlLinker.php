@@ -77,7 +77,7 @@ class UrlLinker
     {
         return $this->em->createQuery(
                    'SELECT u FROM ' .Url::class. ' u
-                    WHERE u.actualUrlToRedirect = :urlToRedirect'
+                    WHERE u.urlToRedirect = :urlToRedirect'
                )->setParameter('urlToRedirect', $actualUrlID)
                 ->getResult();
     }

@@ -3,6 +3,7 @@
 namespace blitzik\Routing\RoutesLoader;
 
 use blitzik\Router\RoutesLoader\IRoutesLoader;
+use blitzik\Routing\Queries\UrlQuery;
 use Kdyby\Doctrine\EntityManager;
 use Nette\Caching\IStorage;
 use Kdyby\Monolog\Logger;
@@ -15,8 +16,11 @@ final class DatabaseRoutesLoader implements IRoutesLoader
     use SmartObject;
 
 
-    const ROUTING_NAMESPACE = 'appDatabaseRouting';
+    const ROUTING_NAMESPACE = 'blitzikDatabaseRouting';
 
+
+    /** @var \Kdyby\Doctrine\EntityRepository */
+    private $urlRepository;
 
     /** @var Logger */
     private $logger;
@@ -36,6 +40,8 @@ final class DatabaseRoutesLoader implements IRoutesLoader
         $this->em = $entityManager;
         $this->logger = $logger->channel(self::ROUTING_NAMESPACE);
         $this->cache = new Cache($storage, self::ROUTING_NAMESPACE);
+
+        $this->urlRepository = $this->em->getRepository(Url::class);
     }
 
 
@@ -44,12 +50,11 @@ final class DatabaseRoutesLoader implements IRoutesLoader
         /** @var Url $urlEntity */
         $urlEntity = $this->cache->load($urlPath, function (& $dependencies) use ($urlPath) {
             /** @var Url $urlEntity */
-            $urlEntity = $this->em->createQuery(
-                'SELECT u, rt FROM ' .Url::class. ' u
-                 LEFT JOIN u.urlToRedirect rt
-                 WHERE u.urlPath = :urlPath'
-            )->setParameter('urlPath', $urlPath)
-             ->getOneOrNullResult();
+            $urlEntity = $this->urlRepository->fetchOne(
+                (new UrlQuery())
+                ->withRedirectionUrl()
+                ->byPath($urlPath)
+            );
 
             if ($urlEntity === null) {
                 $this->logger->addError(sprintf('Page not found. URL_PATH: %s', $urlPath));
@@ -100,14 +105,12 @@ final class DatabaseRoutesLoader implements IRoutesLoader
     }
 
 
-    /**
-     * @param string $presenter
-     * @param string $action
-     * @param string|null $internalId
-     * @return Url|null
-     */
     private function getUrlEntity(string $presenter, string $action, string $internalId = null): ?Url
     {
+        $q = new UrlQuery();
+        $q->byPresenter($presenter);
+        $q->byAction($action);
+
         $qb = $this->em->createQueryBuilder();
         $qb->select('u, rt')
            ->from(Url::class, 'u')

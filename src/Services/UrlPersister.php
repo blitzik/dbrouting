@@ -5,23 +5,26 @@ namespace blitzik\Routing\Services;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use blitzik\Routing\Exceptions\UrlAlreadyExistsException;
 use Kdyby\Doctrine\EntityManager;
+use Kdyby\Monolog\Logger;
 use blitzik\Routing\Url;
 use Nette\SmartObject;
-use Tracy\Debugger;
-use Tracy\ILogger;
 
 class UrlPersister
 {
     use SmartObject;
 
 
+    /** @var Logger */
+    private $logger;
+
     /** @var EntityManager */
     private $em;
 
 
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em, Logger $logger)
     {
         $this->em = $em;
+        $this->logger = $logger->channel('dbRouting');
     }
 
 
@@ -47,14 +50,14 @@ class UrlPersister
         } catch (UrlAlreadyExistsException $uae) {
             $this->closeEntityManager();
 
-            Debugger::log(sprintf('Url path already exists: %s', $uae), ILogger::CRITICAL);
+            $this->logger->addCritical(sprintf('Url path already exists: %s', $uae->getMessage()));
 
             throw $uae;
 
         } catch (\Exception $e) {
             $this->closeEntityManager();
 
-            Debugger::log(sprintf('Url Entity saving failure: %s', $e), ILogger::CRITICAL);
+            $this->logger->addCritical(sprintf('Url Entity saving failure: %s', $e->getMessage()));
 
             throw $e;
         }
